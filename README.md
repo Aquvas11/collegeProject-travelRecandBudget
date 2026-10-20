@@ -4,7 +4,9 @@
 ---
 
 ## 🔗 Live Link
-https://huggingface.co/spaces/Simi2407/budget-travel-scout
+🟢 **Live Demo:** [https://huggingface.co/spaces/AQvas/budget-travel-scout](https://huggingface.co/spaces/AQvas/budget-travel-scout)
+
+> 💡 The app runs entirely in your browser. Enter your own OpenAI API key to use it — the key is never stored or sent anywhere except directly to OpenAI.
 
 ---
 ## ✨ What it does
@@ -114,15 +116,17 @@ Real web data grounds the LLM responses for accurate, destination-specific answe
 ```
 🗂️ budget-travel-scout/
 |
-├── 📄 Gen_AI_Prj_Enhanced.ipynb   - Main Colab notebook 
+├── 📄 index.html                 - HF Static Space (Live Deployment)
 |
-├── 📁 Hugging Face                - Main Depolyment
+├── 📄 Budget Travel Scout_Python.ipynb   - Main Colab notebook 
+|
+├── 📁 Hugging Face Setup         - Original Gradio App
 │   │
 │   ├── 🗳️ app.py
 │   │
 │   └── 🗳️ requirements.txt
 |
-├── 📄 Gen AI_Final Prj.pptx      - Presentation
+├── 📁 UI-Demo                    - Screenshots
 |
 └── 📘 README.md                  - Documentation
 ```

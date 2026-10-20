@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Budget Travel Scout</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f7fa;
+      color: #1a1a1a;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 800px; margin: 0 auto; padding: 1.5rem; }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 1.5rem 0 0.5rem;
+    }
+    .header h1 { font-size: 28px; font-weight: 700; color: #185FA5; }
+    .header .sub { color: #666; margin-top: 6px; font-size: 14px; }
+    .header .tech { color: #999; margin-top: 2px; font-size: 12px; }
+
+    /* API Key */
+    .api-key-box {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+    }
+    .api-key-box label { font-weight: 600; font-size: 13px; color: #856404; display: block; margin-bottom: 6px; }
+    .api-key-box .info { font-size: 11px; color: #856404; margin-top: 6px; }
+    .api-key-box input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ffc107;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: monospace;
+    }
+
+    /* Form */
+    .form-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .form-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .form-group { flex: 1; min-width: 140px; }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid #d0d5dd;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #fafbfc;
+      transition: border 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #185FA5;
+      box-shadow: 0 0 0 3px rgba(24,95,165,0.1);
+    }
+
+    .slider-group { flex: 1; min-width: 140px; }
+    .slider-group label {
+      display: block; font-size: 12px; font-weight: 600;
+      color: #555; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .slider-group input[type="range"] { width: 100%; margin-top: 4px; }
+    .slider-val { font-size: 13px; color: #185FA5; font-weight: 700; margin-left: 6px; }
+
+    /* Button */
+    .scout-btn {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, #185FA5, #0d3f6e);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.2s;
+      letter-spacing: 0.3px;
+    }
+    .scout-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(24,95,165,0.35); }
+    .scout-btn:active { transform: translateY(0); }
+    .scout-btn:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Examples */
+    .examples { margin-bottom: 16px; }
+    .examples-title { font-size: 12px; color: #888; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .example-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .example-btn {
+      padding: 6px 14px;
+      background: #e8f0fe;
+      border: 1px solid #c4d8f2;
+      border-radius: 20px;
+      font-size: 12px;
+      color: #185FA5;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.15s;
+    }
+    .example-btn:hover { background: #d0e3fc; }
+
+    /* Progress */
+    .progress-bar {
+      display: none;
+      margin-bottom: 16px;
+    }
+    .progress-bar.active { display: block; }
+    .progress-track {
+      height: 6px;
+      background: #e0e0e0;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #185FA5, #1D9E75);
+      border-radius: 3px;
+      transition: width 0.5s ease;
+      width: 0%;
+    }
+    .progress-text {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+      font-weight: 500;
+    }
+
+    /* Agent boxes */
+    .agents-section h3 {
+      font-size: 15px; font-weight: 700; color: #333;
+      margin-bottom: 10px;
+    }
+    .agents-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .agent-box {
+      flex: 1;
+      min-width: 200px;
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .agent-header {
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .agent-a-hdr { background: #185FA5; }
+    .agent-b-hdr { background: #0F6E56; }
+    .agent-c-hdr { background: #533AB7; }
+    .agent-body {
+      padding: 10px 12px;
+      font-size: 12px;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      color: #444;
+      white-space: pre-wrap;
+      min-height: 80px;
+      background: #fafbfc;
+    }
+
+    /* Report */
+    .report-section { margin-bottom: 2rem; }
+    .report-section h3 {
+      font-size: 15px; font-weight: 700; color: #333;
+      margin-bottom: 10px;
+    }
+    .report-placeholder {
+      text-align: center;
+      color: #aaa;
+      padding: 2rem;
+      font-size: 14px;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 1rem 0;
+      color: #aaa;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>🌍 Budget Travel Scout</h1>
+    <p class="sub">Multi-Agent AI with <b>GPT-4o</b> &mdash; Budget-Based Itinerary Generator</p>
+    <p class="tech">
+      <b>Agent A</b>: Researcher &nbsp;·&nbsp;
+      <b>Agent B</b>: Local Guide &nbsp;·&nbsp;
+      <b>Agent C</b>: Budgeter
+    </p>
+  </div>
+
+  <!-- API Key -->
+  <div class="api-key-box">
+    <label>🔑 OpenAI API Key</label>
+    <input type="password" id="apiKey" placeholder="sk-..." />
+    <p class="info">Your key is used only in your browser to call OpenAI directly. It is never stored or sent elsewhere.</p>
+  </div>
+
+  <!-- Form -->
+  <div class="form-card">
+    <div class="form-row">
+      <div class="form-group" style="flex:2">
+        <label>From (City)</label>
+        <input type="text" id="origin" placeholder="e.g. Boston" />
+      </div>
+      <div class="form-group" style="flex:2">
+        <label>To (Destination)</label>
+        <input type="text" id="destination" placeholder="e.g. Lisbon" />
+      </div>
+      <div class="form-group" style="flex:1">
+        <label>Interest</label>
+        <select id="interest">
+          <option>History</option>
+          <option>Nightlife</option>
+          <option>Food &amp; Drink</option>
+          <option>Nature</option>
+          <option>Art &amp; Culture</option>
+          <option>Adventure</option>
+          <option>Shopping</option>
+          <option>Beach</option>
+          <option>Architecture</option>
+          <option>Wildlife</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Max Daily Budget (USD)</label>
+        <input type="number" id="maxBudget" placeholder="Optional" min="0" max="5000" />
+      </div>
+      <div class="slider-group">
+        <label>Trip Duration &nbsp;<span class="slider-val" id="daysVal">4 days</span></label>
+        <input type="range" id="tripDays" min="1" max="30" value="4" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Examples -->
+  <div class="examples">
+    <div class="examples-title">Try an example</div>
+    <div class="example-btns">
+      <button class="example-btn" onclick="fillExample('Boston','Lisbon','History',150,5)">Boston → Lisbon</button>
+      <button class="example-btn" onclick="fillExample('New York','Bangkok','Food &amp; Drink',80,7)">NYC → Bangkok</button>
+      <button class="example-btn" onclick="fillExample('Chicago','Tokyo','Nightlife',200,4)">Chicago → Tokyo</button>
+      <button class="example-btn" onclick="fillExample('Los Angeles','Mexico City','Art &amp; Culture',100,5)">LA → Mexico City</button>
+    </div>
+  </div>
+
+  <!-- Scout Button -->
+  <button class="scout-btn" id="scoutBtn" onclick="runPipeline()">🔍 Scout this destination</button>
+
+  <!-- Progress -->
+  <div class="progress-bar" id="progressBar">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-text" id="progressText">Starting...</div>
+  </div>
+
+  <!-- Agent Outputs -->
+  <div class="agents-section" style="margin-top:16px">
+    <h3>Agent Outputs</h3>
+    <div class="agents-row">
+      <div class="agent-box">
+        <div class="agent-header agent-a-hdr">AGENT A — Researcher · GPT-4o</div>
+        <div class="agent-body" id="agentA">Waiting...</div>
+      </div>
+      <div class="agent-box">
+        <div class="agent-header agent-b-hdr">AGENT B — Local Guide · GPT-4o</div>
+        <div class="agent-body" id="agentB">Waiting...</div>
+      </div>
+      <div class="agent-box">
+        <div class="agent-header agent-c-hdr">AGENT C — Budgeter · GPT-4o</div>
+        <div class="agent-body" id="agentC">Waiting...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report -->
+  <div class="report-section">
+    <h3>Full Report</h3>
+    <div id="reportArea">
+      <p class="report-placeholder">Run a search to see your travel report.</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    Multi-Agent Pipeline: GPT-4o (Agent A) → GPT-4o (Agent B) → GPT-4o (Agent C) → Report
+  </div>
+</div>
+
+<script>
+// ── Slider live update ──
+const tripSlider = document.getElementById('tripDays');
+const daysVal = document.getElementById('daysVal');
+tripSlider.addEventListener('input', () => { daysVal.textContent = tripSlider.value + ' days'; });
+
+// ── Example fill ──
+function fillExample(o, d, i, b, days) {
+  document.getElementById('origin').value = o;
+  document.getElementById('destination').value = d;
+  document.getElementById('interest').value = i;
+  document.getElementById('maxBudget').value = b;
+  tripSlider.value = days;
+  daysVal.textContent = days + ' days';
+}
+
+// ── Progress helpers ──
+function setProgress(pct, text) {
+  const bar = document.getElementById('progressBar');
+  const fill = document.getElementById('progressFill');
+  const txt = document.getElementById('progressText');
+  bar.classList.add('active');
+  fill.style.width = pct + '%';
+  txt.textContent = text;
+}
+function hideProgress() {
+  document.getElementById('progressBar').classList.remove('active');
+}
+
+// ── OpenAI call ──
+async function callOpenAI(apiKey, messages, temperature, maxTokens) {
+  const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o',
+      messages,
+      temperature,
+      max_tokens: maxTokens,
+    }),
+  });
+  if (!resp.ok) {
+    const err = await resp.text();
+    throw new Error(`OpenAI error ${resp.status}: ${err}`);
+  }
+  const data = await resp.json();
+  return data.choices[0].message.content.trim();
+}
+
+// ── JSON parser with fallback ──
+function parseJSON(raw) {
+  const cleaned = raw.replace(/```json|```/g, '').trim();
+  return JSON.parse(cleaned);
+}
+
+// ── Agent A ──
+async function agentA(apiKey, origin, destination, maxBudget) {
+  let budgetInstruction = '';
+  if (maxBudget && maxBudget > 0) {
+    budgetInstruction = `\nIMPORTANT: Traveler's max daily budget is $${maxBudget}. Focus on options within this constraint. Flag if destination is likely over budget.`;
+  }
+  const systemPrompt =
+    `You are a travel cost researcher. Give realistic budget estimates.${budgetInstruction}\n` +
+    `Reply ONLY with valid JSON — no markdown:\n` +
+    `{"flight_low":int,"flight_high":int,"hotel_low":int,"hotel_high":int,"booking_tip":"string","budget_warning":"string or null"}`;
+
+  const userPrompt =
+    `Estimate round-trip economy flight from ${origin} to ${destination} and average budget/mid-range hotel per night in ${destination} in 2025.`;
+
+  const raw = await callOpenAI(apiKey, [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: userPrompt },
+  ], 0.2, 300);
+
+  try {
+    const result = parseJSON(raw);
+    result.budget_warning = result.budget_warning || null;
+    return result;
+  } catch {
+    // Regex fallback
+    const ex = (k) => { const m = raw.match(new RegExp(`"${k}"\\s*:\\s*(\\d+)`)); return m ? parseInt(m[1]) : 0; };
+    const tipM = raw.match(/"booking_tip"\s*:\s*"([^"]+)"/);
+    return {
+      flight_low: ex('flight_low') || 300, flight_high: ex('flight_high') || 800,
+      hotel_low: ex('hotel_low') || 70, hotel_high: ex('hotel_high') || 160,
+      booking_tip: tipM ? tipM[1] : 'Book 6-8 weeks in advance.',
+      budget_warning: null,
+    };
+  }
+}
+
+// ── Agent B ──
+async function agentB(apiKey, destination, interest, maxBudget) {
+  let budgetNote = '';
+  if (maxBudget && maxBudget > 0) {
+    if (maxBudget < 80) budgetNote = 'Traveler is on a VERY tight budget. ALL activities must be FREE.';
+    else if (maxBudget < 150) budgetNote = 'Traveler is budget-conscious. Prioritize free options.';
+  }
+  const systemPrompt =
+    `You are a savvy local travel guide. Suggest specific, real places based on your knowledge. ${budgetNote}\n` +
+    `Reply ONLY with a valid JSON array — no markdown:\n` +
+    `[{"name":"string","description":"one sentence","cost":"Free | Under $5 | $5-$15","source":"string"}]`;
+
+  const userPrompt =
+    `Destination: ${destination}\nInterest: ${interest}\nList exactly 3 activities. At least 2 must be completely Free.`;
+
+  const raw = await callOpenAI(apiKey, [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: userPrompt },
+  ], 0.3, 400);
+
+  try {
+    const result = parseJSON(raw);
+    if (!result || !Array.isArray(result) || result.length === 0) throw new Error('Empty');
+    return result;
+  } catch {
+    return [
+      { name: 'City walking tour', description: `Explore ${destination}'s streets and landmarks.`, cost: 'Free', source: 'general' },
+      { name: 'Local market visit', description: 'Browse produce, crafts, and street food.', cost: 'Free', source: 'general' },
+      { name: 'Public museum', description: 'Free or discounted entry on select days.', cost: 'Free-$5', source: 'general' },
+    ];
+  }
+}
+
+// ── Agent C ──
+async function agentC(apiKey, origin, destination, cost, acts, maxBudget, tripDays) {
+  const actsText = acts.map(a => `- ${a.name}: ${a.description} (${a.cost || '?'})`).join('\n');
+  let budgetConstraint = '';
+  if (maxBudget && maxBudget > 0) {
+    budgetConstraint =
+      `\nTraveler's MAX daily budget: $${maxBudget}. Trip duration: ${tripDays} days. ` +
+      `If grand_daily_total EXCEEDS max budget, set over_budget=true and fill savings_tips. ` +
+      `If within budget, set over_budget=false and savings_tips=[].`;
+  }
+  const systemPrompt =
+    `You are a travel budget analyst. Compute a realistic solo daily budget from Agent A and B data.${budgetConstraint}\n` +
+    `Reply ONLY with valid JSON — no markdown:\n` +
+    `{"daily_hotel":int,"daily_food":int,"daily_transport":int,"daily_activities":int,` +
+    `"daily_total":int,"flight_amortized":int,"grand_daily_total":int,` +
+    `"score":int,"summary":"string","over_budget":bool,` +
+    `"savings_tips":["string"],"total_trip_cost":int}\n` +
+    `score: 1-10. grand_daily_total = daily_total + flight_amortized. ` +
+    `flight_amortized = flight midpoint / ${tripDays}. ` +
+    `total_trip_cost = daily_total x ${tripDays} + flight midpoint.`;
+
+  const userPrompt =
+    `Trip: ${origin} to ${destination} (${tripDays} days)\n` +
+    `Flight: $${cost.flight_low}-$${cost.flight_high} round-trip\n` +
+    `Hotel: $${cost.hotel_low}-$${cost.hotel_high}/night\n` +
+    `Tip: ${cost.booking_tip}\n\nActivities:\n${actsText}`;
+
+  const raw = await callOpenAI(apiKey, [
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: userPrompt },
+  ], 0.2, 500);
+
+  try {
+    const result = parseJSON(raw);
+    result.over_budget = result.over_budget || false;
+    result.savings_tips = result.savings_tips || [];
+    result.total_trip_cost = result.total_trip_cost || 0;
+    return result;
+  } catch {
+    const midH = Math.floor((cost.hotel_low + cost.hotel_high) / 2);
+    const midF = Math.floor((cost.flight_low + cost.flight_high) / 2);
+    const daily = midH + 65;
+    const amort = Math.floor(midF / tripDays);
+    const grand = daily + amort;
+    return {
+      daily_hotel: midH, daily_food: 40, daily_transport: 15, daily_activities: 10,
+      daily_total: daily, flight_amortized: amort, grand_daily_total: grand,
+      score: 6, summary: `${destination} offers moderate value for budget travelers.`,
+      over_budget: maxBudget ? grand > maxBudget : false, savings_tips: [],
+      total_trip_cost: daily * tripDays + midF,
+    };
+  }
+}
+
+// ── Build Report ──
+function buildReport(origin, destination, interest, cost, acts, budget, maxBudget, tripDays) {
+  const score = budget.score;
+  const color = score >= 7 ? '#1D9E75' : score >= 5 ? '#BA7517' : '#C0392B';
+  const pct = score * 10;
+
+  let budgetBanner = '';
+  if (maxBudget && maxBudget > 0) {
+    const grand = budget.grand_daily_total;
+    const total = budget.total_trip_cost || grand * tripDays;
+    if (budget.over_budget) {
+      const diff = grand - maxBudget;
+      budgetBanner = `<div style='background:#FFF3CD;border:1px solid #FFC107;border-radius:8px;padding:12px 16px;margin-bottom:14px'>
+        <div style='font-weight:700;color:#856404;font-size:14px'>⚠️ Over Budget by $${diff}/day</div>
+        <div style='font-size:12px;color:#856404;margin-top:4px'>Daily: $${grand} vs max $${maxBudget} | Trip (${tripDays}d): ~$${total.toLocaleString()}</div></div>`;
+    } else {
+      const remaining = maxBudget - grand;
+      budgetBanner = `<div style='background:#D4EDDA;border:1px solid #28A745;border-radius:8px;padding:12px 16px;margin-bottom:14px'>
+        <div style='font-weight:700;color:#155724;font-size:14px'>✅ Within Budget — $${remaining}/day to spare</div>
+        <div style='font-size:12px;color:#155724;margin-top:4px'>Daily: $${grand} vs max $${maxBudget} | Trip (${tripDays}d): ~$${total.toLocaleString()}</div></div>`;
+    }
+  }
+
+  let tipsHtml = '';
+  const tips = budget.savings_tips || [];
+  if (tips.length > 0) {
+    const items = tips.map(t => `<li style='margin-bottom:4px;color:#000'>${t}</li>`).join('');
+    tipsHtml = `<div style='background:#FFF8E1;border-radius:8px;padding:10px 14px;margin-top:10px;border:1px solid #FFE082;font-size:13px;color:#000'>
+      <div style='font-weight:700;margin-bottom:6px;color:#000'>💡 Money-Saving Tips:</div>
+      <ul style='margin:0;padding-left:20px;color:#000'>${items}</ul></div>`;
+  }
+
+  const bw = cost.budget_warning;
+  const agentAWarning = (bw && bw !== 'null' && bw !== 'none' && bw !== '')
+    ? `<div style='font-size:12px;color:#C0392B;margin-top:6px;font-weight:600'>⚠️ ${bw}</div>` : '';
+
+  const actRows = acts.map(a => `
+    <tr>
+      <td style='padding:7px 0;font-weight:600;color:#1a1a1a;width:30%'>${a.name}</td>
+      <td style='padding:7px 0;color:#444;font-size:13px'>${a.description}</td>
+      <td style='padding:7px 0;text-align:right;color:#185FA5;font-weight:600'>${a.cost || '?'}</td>
+    </tr>
+    <tr><td colspan='3' style='border-bottom:1px solid #eee;padding:0'></td></tr>
+  `).join('');
+
+  const cardData = [
+    ['Hotel', budget.daily_hotel],
+    ['Food', budget.daily_food],
+    ['Transport', budget.daily_transport],
+    ['Activities', budget.daily_activities],
+    [`Flight /${tripDays}d`, budget.flight_amortized],
+  ];
+  const cards = cardData.map(([lbl, val]) => `
+    <div style='background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:10px 14px;text-align:center;flex:1;min-width:80px'>
+      <div style='font-size:11px;color:#888;margin-bottom:2px'>${lbl}</div>
+      <div style='font-size:17px;font-weight:700;color:#1a1a1a'>$${val}</div>
+    </div>
+  `).join('');
+
+  const budgetDisplay = maxBudget ? ` &nbsp;·&nbsp; Max $${maxBudget}/day` : '';
+
+  return `
+  <div style='font-family:system-ui,sans-serif;max-width:700px;margin:0 auto;border:1px solid #ddd;border-radius:14px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08)'>
+    <div style='background:linear-gradient(135deg,#185FA5,#0d3f6e);color:#fff;padding:1.5rem 1.75rem'>
+      <span style='font-size:11px;opacity:0.75;letter-spacing:2px;text-transform:uppercase'>Budget Travel Scout</span>
+      <div style='font-size:26px;font-weight:700;margin-top:4px'>${origin} → ${destination}</div>
+      <div style='font-size:14px;opacity:0.85;margin-top:4px'>Interest: ${interest} &nbsp;·&nbsp; ${tripDays} days${budgetDisplay}</div>
+    </div>
+    <div style='padding:1.25rem 1.75rem;border-bottom:1px solid #eee;background:#f0f7ff'>
+      <div style='display:flex;align-items:center;gap:8px;margin-bottom:10px'>
+        <span style='background:#185FA5;color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px'>AGENT A</span>
+        <span style='font-size:12px;color:#555'>Researcher · GPT-4o</span>
+      </div>
+      <div style='display:flex;gap:2.5rem'>
+        <div><div style='font-size:11px;color:#888;margin-bottom:2px'>Round-trip flight</div>
+             <div style='font-size:22px;font-weight:700;color:#1a1a1a'>$${cost.flight_low}–$${cost.flight_high}</div></div>
+        <div><div style='font-size:11px;color:#888;margin-bottom:2px'>Hotel / night</div>
+             <div style='font-size:22px;font-weight:700;color:#1a1a1a'>$${cost.hotel_low}–$${cost.hotel_high}</div></div>
+      </div>
+      <div style='font-size:12px;color:#555;margin-top:8px;font-style:italic'>${cost.booking_tip}</div>
+      ${agentAWarning}
+    </div>
+    <div style='padding:1.25rem 1.75rem;border-bottom:1px solid #eee;background:#f0fbf6'>
+      <div style='display:flex;align-items:center;gap:8px;margin-bottom:10px'>
+        <span style='background:#0F6E56;color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px'>AGENT B</span>
+        <span style='font-size:12px;color:#555'>Local Guide · GPT-4o</span>
+      </div>
+      <table style='width:100%;border-collapse:collapse'>${actRows}</table>
+    </div>
+    <div style='padding:1.25rem 1.75rem;background:#f9f7ff'>
+      <div style='display:flex;align-items:center;gap:8px;margin-bottom:12px'>
+        <span style='background:#533AB7;color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px'>AGENT C</span>
+        <span style='font-size:12px;color:#555'>Budgeter · GPT-4o</span>
+      </div>
+      ${budgetBanner}
+      <div style='display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px'>${cards}</div>
+      <div style='font-size:22px;font-weight:700;color:#1a1a1a;margin-bottom:12px'>
+        Grand Daily Total: <span style='color:${color}'>$${budget.grand_daily_total}</span>
+      </div>
+      <div style='margin-bottom:12px'>
+        <div style='display:flex;justify-content:space-between;font-size:12px;color:#555;margin-bottom:5px'>
+          <span>Budget Friendliness Score</span>
+          <span style='font-weight:700;color:${color}'>${score} / 10</span>
+        </div>
+        <div style='height:10px;background:#e0e0e0;border-radius:5px;overflow:hidden'>
+          <div style='height:100%;width:${pct}%;background:${color};border-radius:5px'></div>
+        </div>
+      </div>
+      <div style='font-size:13px;color:#444;line-height:1.7;background:#fff;border-radius:8px;padding:10px 14px;border:1px solid #e0e0e0'>${budget.summary}</div>
+      ${tipsHtml}
+    </div>
+  </div>`;
+}
+
+// ── Main pipeline ──
+async function runPipeline() {
+  const apiKey = document.getElementById('apiKey').value.trim();
+  const origin = document.getElementById('origin').value.trim();
+  const destination = document.getElementById('destination').value.trim();
+  const interest = document.getElementById('interest').value;
+  const maxBudgetVal = document.getElementById('maxBudget').value;
+  const tripDays = parseInt(document.getElementById('tripDays').value) || 4;
+  const maxBudget = maxBudgetVal ? parseFloat(maxBudgetVal) : null;
+
+  if (!apiKey) { alert('Please enter your OpenAI API key.'); return; }
+  if (!origin || !destination) { alert('Please enter both origin and destination.'); return; }
+
+  const btn = document.getElementById('scoutBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Running agents...';
+
+  document.getElementById('agentA').textContent = 'Running...';
+  document.getElementById('agentB').textContent = 'Running...';
+  document.getElementById('agentC').textContent = 'Running...';
+  document.getElementById('reportArea').innerHTML = '<p class="report-placeholder">Generating report...</p>';
+
+  let cost, acts, budget;
+
+  try {
+    // Agent A
+    setProgress(25, 'Agent A: Researching prices...');
+    try {
+      cost = await agentA(apiKey, origin, destination, maxBudget);
+      let aText = `Flight (round-trip): $${cost.flight_low}-$${cost.flight_high}\n` +
+                  `Hotel (per night):   $${cost.hotel_low}-$${cost.hotel_high}\n` +
+                  `Tip: ${cost.booking_tip}`;
+      if (cost.budget_warning && cost.budget_warning !== 'null' && cost.budget_warning !== 'none')
+        aText += `\n⚠️ ${cost.budget_warning}`;
+      document.getElementById('agentA').textContent = aText;
+    } catch (e) {
+      document.getElementById('agentA').textContent = `Error: ${e.message}`;
+      cost = { flight_low: 300, flight_high: 800, hotel_low: 70, hotel_high: 160, booking_tip: 'Book 6-8 weeks in advance.', budget_warning: null };
+    }
+
+    // Agent B
+    setProgress(50, 'Agent B: Finding activities...');
+    try {
+      acts = await agentB(apiKey, destination, interest, maxBudget);
+      const bText = acts.map(a => {
+        const tag = (a.cost || '').toLowerCase().includes('free') ? '[Free]' : '[Paid]';
+        return `${tag} ${a.name} (${a.cost || '?'}) - ${a.description}`;
+      }).join('\n');
+      document.getElementById('agentB').textContent = bText;
+    } catch (e) {
+      document.getElementById('agentB').textContent = `Error: ${e.message}`;
+      acts = [
+        { name: 'City walking tour', description: `Explore ${destination}'s landmarks.`, cost: 'Free', source: 'fallback' },
+        { name: 'Local market visit', description: 'Browse produce, crafts, street food.', cost: 'Free', source: 'fallback' },
+        { name: 'Public museum', description: 'Free entry on select days.', cost: 'Free-$5', source: 'fallback' },
+      ];
+    }
+
+    // Agent C
+    setProgress(75, 'Agent C: Calculating budget...');
+    try {
+      budget = await agentC(apiKey, origin, destination, cost, acts, maxBudget, tripDays);
+      let cText = `Hotel $${budget.daily_hotel} | Food $${budget.daily_food} | ` +
+                  `Transport $${budget.daily_transport} | Activities $${budget.daily_activities}\n` +
+                  `Flight amortized (${tripDays}d): $${budget.flight_amortized}\n` +
+                  `Grand daily total: $${budget.grand_daily_total} | Score: ${budget.score}/10`;
+      if (budget.over_budget && maxBudget) cText += `\n⚠️ OVER your $${maxBudget}/day budget!`;
+      if (budget.total_trip_cost) cText += `\nEst. total trip (${tripDays}d): $${budget.total_trip_cost.toLocaleString()}`;
+      document.getElementById('agentC').textContent = cText;
+    } catch (e) {
+      document.getElementById('agentC').textContent = `Error: ${e.message}`;
+      const midH = Math.floor((cost.hotel_low + cost.hotel_high) / 2);
+      const midF = Math.floor((cost.flight_low + cost.flight_high) / 2);
+      budget = {
+        daily_hotel: midH, daily_food: 40, daily_transport: 15, daily_activities: 10,
+        daily_total: midH + 65, flight_amortized: Math.floor(midF / tripDays),
+        grand_daily_total: midH + 65 + Math.floor(midF / tripDays),
+        score: 5, summary: `Budget estimate for ${destination}.`,
+        over_budget: false, savings_tips: [], total_trip_cost: 0,
+      };
+    }
+
+    // Report
+    setProgress(100, 'Done! ✅');
+    const report = buildReport(origin, destination, interest, cost, acts, budget, maxBudget, tripDays);
+    document.getElementById('reportArea').innerHTML = report;
+
+  } catch (e) {
+    document.getElementById('reportArea').innerHTML = `<p style='color:red;font-weight:600'>Pipeline error: ${e.message}</p>`;
+  }
+
+  setTimeout(hideProgress, 1500);
+  btn.disabled = false;
+  btn.textContent = '🔍 Scout this destination';
+}
+</script>
+</body>
+</html>
